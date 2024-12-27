@@ -1,0 +1,35 @@
+
+# Ignore compiled files
+*.class
+*.jar
+*.war
+*.ear
+
+# Ignore IDE files
+.idea/
+*.iml
+*.ipr
+*.iws
+
+# Ignore OS-generated files
+.DS_Store
+Thumbs.db
+ehthumbs.db
+
+# Ignore Maven directories
+target/
+*.log
+
+# Ignore environment files (if you have any sensitive config files)
+*.env
+
+# Ignore dependency directories
+node_modules/
+bower_components/
+
+# Ignore image files
+*.png
+*.jpg
+*.jpeg
+*.gif
+*.bmp
