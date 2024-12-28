@@ -37,20 +37,45 @@ public class PersonalInfoPage extends AbstractPage{
         personalInfo.click();
     }
 
-    public String getEmailInfo(){
-        waitForElementToBeVisible(emailInfoContainer);
-        return  emailInfoContainer.getDomAttribute("title");
+    public String getEmailInfo() {
+        try {
+            waitForElementToBeVisible(emailInfoContainer);
+            return emailInfoContainer.getDomAttribute("title");
+        } catch (NoSuchElementException e) {
+            logger.error("Email info element not found: {}", e.getMessage());
+            return "";
+        } catch (Exception e) {
+            logger.error("Unexpected error occurred while retrieving email info: {}", e.getMessage());
+            return "";
+        }
     }
 
-    public String getNameInfo(){
-        waitForElementToBeVisible(nameInfoContainer);
-        return  nameInfoContainer.getText();
+    public String getNameInfo() {
+        try {
+            waitForElementToBeVisible(nameInfoContainer);
+            return nameInfoContainer.getText();
+        } catch (NoSuchElementException e) {
+            logger.error("Name info element not found: {}", e.getMessage());
+            return "";
+        } catch (Exception e) {
+            logger.error("Unexpected error occurred while retrieving name info: {}", e.getMessage());
+            return "";
+        }
     }
 
-    public String getSecondNameInfo(){
-        waitForElementToBeVisible(secondNameInfoContainer);
-        return  secondNameInfoContainer.getText();
+    public String getSecondNameInfo() {
+        try {
+            waitForElementToBeVisible(secondNameInfoContainer);
+            return secondNameInfoContainer.getText();
+        } catch (NoSuchElementException e) {
+            logger.error("Second name info element not found: {}", e.getMessage());
+            return "";
+        } catch (Exception e) {
+            logger.error("Unexpected error occurred while retrieving second name info: {}", e.getMessage());
+            return "";
+        }
     }
+
 
     public String getDateOfBirthInfo() {
         try {

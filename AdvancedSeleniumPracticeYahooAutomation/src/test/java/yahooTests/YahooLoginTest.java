@@ -1,7 +1,6 @@
 package yahooTests;
 
 import com.example.HomePage;
-
 import com.example.model.User;
 import com.example.service.URLCreator;
 import com.example.service.UserCreator;
@@ -27,12 +26,18 @@ public class YahooLoginTest extends AbstractPageTest{
      */
     @BeforeMethod
     public void setup(){
-        super.setup();
-        logger.info("Navigating to Yahoo homepage.");
-        driver.get(URLCreator.getLoginURLFromProperty());
+        try {
+            super.setup();
+            logger.info("Navigating to Yahoo homepage.");
+            driver.get(URLCreator.getLoginURLFromProperty());
 
-        page = new HomePage(driver);
-        logger.debug("HomePage object initialized.");
+            page = new HomePage(driver);
+            logger.debug("HomePage object initialized.");
+        }
+        catch (Exception e) {
+        logger.error("Error occurred during setup: {}", e.getMessage(),e);
+        throw e;
+        }
     }
 
     /**
@@ -43,9 +48,7 @@ public class YahooLoginTest extends AbstractPageTest{
     @Test
     public void signIn(){
         logger.info("Starting sign-in test.");
-
-        User user = UserCreator.withValidUsernameAndPasswordFromEnvironment();
-//        user = UserCreator.withValidEmailAndPasswordFromEnvironment();
+        user = UserCreator.withValidUsernameAndPasswordFromEnvironment();
         logger.debug("User credentials retrieved: Username = {}, Password = [PROTECTED]", user.getUserName());
 
         try {

@@ -101,7 +101,6 @@ public class MailPage extends AbstractPage{
             refreshLetterBox();
             sentMenu.click();
 
-
             waitForElementToBeVisible(selectAllSentLetters);
             selectAllSentLetters.click();
 

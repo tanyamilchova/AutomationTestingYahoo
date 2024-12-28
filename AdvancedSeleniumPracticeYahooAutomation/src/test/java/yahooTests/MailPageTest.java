@@ -1,14 +1,12 @@
 package yahooTests;
 
 import com.example.MailPage;
-
 import com.example.model.User;
 import com.example.service.URLCreator;
 import com.example.service.UserCreator;
-
-
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
+import org.openqa.selenium.NoSuchElementException;
 import org.testng.annotations.BeforeMethod;
 import org.testng.annotations.Test;
 import static org.testng.AssertJUnit.assertEquals;
@@ -47,7 +45,7 @@ public class MailPageTest extends AbstractPageTest {
             page.login(user.getEmail(), user.getPassword());
             logger.info("Logged in with email: " + user.getEmail());
         } catch (Exception e) {
-            logger.error("Error occured during setup: {}", e.getMessage(),e);
+            logger.error("Error occurred during setup: {}", e.getMessage(),e);
             throw e;
         }
     }
@@ -59,19 +57,34 @@ public class MailPageTest extends AbstractPageTest {
      * recipient, subject, and text content.
      * </p>
      */
-    @Test
-    public void createNewEmail(){
-        logger.info("Testing creation of new email...");
-        User user = UserCreator.withEmailAttributes();
-        int sentLetters = page.getNumberOfSentLetters();
-        page.createEmail(user.getSendToEmail(), user.getEmailSubject(), user.getEmailText());
-        logger.debug("Email created with recipient: " + user.getSendToEmail() + ", subject: " + user.getEmailSubject());
 
-        page.refreshLetterBox();
-        int currentSentLetters = page.getNumberOfSentLetters();
-        assertEquals((sentLetters + 1), currentSentLetters);
-        logger.info("New email sent successfully. Sent letters count: " + currentSentLetters);
+    @Test
+    public void createNewEmail() {
+        try {
+            logger.info("Testing creation of new email...");
+            User user = UserCreator.withEmailAttributes();
+
+            int sentLetters = page.getNumberOfSentLetters();
+            page.createEmail(user.getSendToEmail(), user.getEmailSubject(), user.getEmailText());
+            logger.debug("Email created with recipient: " + user.getSendToEmail() + ", subject: " + user.getEmailSubject());
+
+            page.refreshLetterBox();
+            int currentSentLetters = page.getNumberOfSentLetters();
+            assertEquals((sentLetters + 1), currentSentLetters);
+
+            logger.info("New email sent successfully. Sent letters count: " + currentSentLetters);
+        } catch (NoSuchElementException e) {
+            logger.error("Error occurred while interacting with the email elements: {}", e.getMessage(), e);
+            throw e;
+        } catch (AssertionError e) {
+            logger.error("Assertion failed during email creation test: {}", e.getMessage(), e);
+            throw e;
+        } catch (Exception e) {
+            logger.error("Unexpected error occurred during the test execution: {}", e.getMessage(), e);
+            throw new RuntimeException("Test execution failed due to unexpected error", e);
+        }
     }
+
 
     /**
      * Tests the creation of a new draft.
@@ -81,18 +94,32 @@ public class MailPageTest extends AbstractPageTest {
      * </p>
      */
     @Test
-    public void createNewDraft(){
-        logger.info("Testing creation of new draft...");
-        User user = UserCreator.withEmailAttributes();
-        int numberDrafts = page.getNumberOfDrafts();
-        page.createDraft(user.getSendToEmail(), user.getEmailSubject(), user.getEmailText());
-        logger.debug("Draft created with recipient: " + user.getSendToEmail() + ", subject: " + user.getEmailSubject());
+    public void createNewDraft() {
+        try {
+            logger.info("Testing creation of new draft...");
+            User user = UserCreator.withEmailAttributes();
 
-        page.refreshDraftCheckboxBox();
-        int currentNumberOfDrafts = page.getNumberOfDrafts();
-        assertEquals((numberDrafts + 1), currentNumberOfDrafts);
-        logger.info("New draft created successfully. Draft count: " + currentNumberOfDrafts);
+            int numberDrafts = page.getNumberOfDrafts();
+            page.createDraft(user.getSendToEmail(), user.getEmailSubject(), user.getEmailText());
+            logger.debug("Draft created with recipient: " + user.getSendToEmail() + ", subject: " + user.getEmailSubject());
+
+            page.refreshDraftCheckboxBox();
+            int currentNumberOfDrafts = page.getNumberOfDrafts();
+            assertEquals((numberDrafts + 1), currentNumberOfDrafts);
+
+            logger.info("New draft created successfully. Draft count: " + currentNumberOfDrafts);
+        } catch (NoSuchElementException e) {
+            logger.error("Error occurred while interacting with the draft elements: {}", e.getMessage(), e);
+            throw e;
+        } catch (AssertionError e) {
+            logger.error("Assertion failed during draft creation test: {}", e.getMessage(), e);
+            throw e;
+        } catch (Exception e) {
+            logger.error("Unexpected error occurred during the test execution: {}", e.getMessage(), e);
+            throw new RuntimeException("Test execution failed due to unexpected error", e);
+        }
     }
+
 
     /**
      * Tests sending a draft email.
@@ -103,29 +130,42 @@ public class MailPageTest extends AbstractPageTest {
      * </p>
      */
     @Test
-    public void sendADraft(){
-        logger.info("Testing sending of a draft email...");
-        User user = UserCreator.withEmailAttributes();
-        int numberDrafts = page.getNumberOfDrafts();
-        page.openDraftToSend();
+    public void sendADraft() {
+        try {
+            logger.info("Testing sending of a draft email...");
+            User user = UserCreator.withEmailAttributes();
 
-        String emailValue = page.getEmailValue();
-        String subjectValue = page.getSubjectValue();
-        String textValue = page.getTextValue();
+            int numberDrafts = page.getNumberOfDrafts();
+            page.openDraftToSend();
 
-        logger.debug("Checking draft values... email: " + emailValue + ", subject: " + subjectValue + ", text: " + textValue);
+            String emailValue = page.getEmailValue();
+            String subjectValue = page.getSubjectValue();
+            String textValue = page.getTextValue();
 
-        assertEquals(user.getSendToEmail(), emailValue);
-        assertEquals(user.getEmailSubject(), subjectValue);
-        assertEquals(user.getEmailText(), textValue);
+            logger.debug("Checking draft values... email: " + emailValue + ", subject: " + subjectValue + ", text: " + textValue);
 
-        page.sendLatestDraft();
-        page.refreshDraftBox();
+            assertEquals(user.getSendToEmail(), emailValue);
+            assertEquals(user.getEmailSubject(), subjectValue);
+            assertEquals(user.getEmailText(), textValue);
 
-        int currentNumberOfDrafts = page.getNumberOfDrafts();
-        assertEquals((numberDrafts - 1), currentNumberOfDrafts);
-        logger.info("Draft email sent successfully. Remaining drafts: " + currentNumberOfDrafts);
+            page.sendLatestDraft();
+            page.refreshDraftBox();
+            int currentNumberOfDrafts = page.getNumberOfDrafts();
+            assertEquals((numberDrafts - 1), currentNumberOfDrafts);
+
+            logger.info("Draft email sent successfully. Remaining drafts: " + currentNumberOfDrafts);
+        } catch (NoSuchElementException e) {
+            logger.error("Error occurred while interacting with the draft elements: {}", e.getMessage(), e);
+            throw e;
+        } catch (AssertionError e) {
+            logger.error("Assertion failed during draft sending test: {}", e.getMessage(), e);
+            throw e;
+        } catch (Exception e) {
+            logger.error("Unexpected error occurred during the test execution: {}", e.getMessage(), e);
+            throw new RuntimeException("Test execution failed due to unexpected error", e);
+        }
     }
+
 
     /**
      * Tests logging out from the mail account.
@@ -135,13 +175,26 @@ public class MailPageTest extends AbstractPageTest {
      * </p>
      */
     @Test
-    public void logOut(){
-        logger.info("Testing logout...");
-        final String EXPECTED_URL = "https://www.yahoo.com/";
-        page.exitAccount();
+    public void logOut() {
+        try {
+            logger.info("Testing logout...");
+            final String EXPECTED_URL = URLCreator.getYahooURLFromProperty();
+            page.exitAccount();
 
-        String actual_URL = driver.getCurrentUrl();
-        assertEquals(EXPECTED_URL, actual_URL);
-        logger.info("Logout successful. Current URL: " + actual_URL);
+            String actual_URL = driver.getCurrentUrl();
+            assertEquals(EXPECTED_URL, actual_URL);
+
+            logger.info("Logout successful. Current URL: " + actual_URL);
+        } catch (NoSuchElementException e) {
+            logger.error("Error occurred while trying to log out or find the elements: {}", e.getMessage(), e);
+            throw e;
+        } catch (AssertionError e) {
+            logger.error("Assertion failed during logout test. Expected URL: 'https://www.yahoo.com/', but found: {}", e.getMessage(), e);
+            throw e;
+        } catch (Exception e) {
+            logger.error("Unexpected error occurred during logout test execution: {}", e.getMessage(), e);
+            throw new RuntimeException("Test execution failed due to unexpected error", e);
+        }
     }
+
 }
