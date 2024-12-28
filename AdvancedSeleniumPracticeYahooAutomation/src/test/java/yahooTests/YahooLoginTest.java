@@ -3,7 +3,10 @@ package yahooTests;
 import com.example.HomePage;
 
 import com.example.model.User;
+import com.example.service.URLCreator;
 import com.example.service.UserCreator;
+import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
 import org.testng.annotations.BeforeMethod;
 import org.testng.annotations.Test;
 import static org.testng.AssertJUnit.assertEquals;
@@ -15,8 +18,9 @@ import static org.testng.AssertJUnit.assertEquals;
  */
 public class YahooLoginTest extends AbstractPageTest{
 
+    private static final Logger logger = LogManager.getLogger(YahooLoginTest.class);
     HomePage page;
-
+    User user;
     /**
      * Sets up the test environment before each test method is run.
      * This method navigates to the Yahoo homepage and initializes the HomePage object.
@@ -24,8 +28,11 @@ public class YahooLoginTest extends AbstractPageTest{
     @BeforeMethod
     public void setup(){
         super.setup();
-        driver.get("https://www.yahoo.com/");
+        logger.info("Navigating to Yahoo homepage.");
+        driver.get(URLCreator.getLoginURLFromProperty());
+
         page = new HomePage(driver);
+        logger.debug("HomePage object initialized.");
     }
 
     /**
@@ -35,28 +42,37 @@ public class YahooLoginTest extends AbstractPageTest{
      */
     @Test
     public void signIn(){
-        User user = UserCreator.withValidPasswordAndUsernameFromProperty();
-//        page.signIn();
-//        page.fillLoginName(NAME);
-//        String actual = page.getLoginNameValue();
-//        assertEquals(NAME, actual);
-//
-//        page.nameFormClickNext();
-//
-//        page.fillPassword(PASSWORD);
-//        String actualPassword = page.getPasswordValue();
-//        assertEquals(PASSWORD, actualPassword);
-//        page.passwordFormClickNext();
-        page.signIn();
-        page.fillLoginName(user.getUserName());
-        String actual = page.getLoginNameValue();
-        assertEquals(user.getUserName(), actual);
+        logger.info("Starting sign-in test.");
 
-        page.nameFormClickNext();
+        User user = UserCreator.withValidUsernameAndPasswordFromEnvironment();
+        logger.debug("User credentials retrieved: Username = {}, Password = [PROTECTED]", user.getUserName());
 
-        page.fillPassword(user.getPassword());
-        String actualPassword = page.getPasswordValue();
-        assertEquals(user.getPassword(), actualPassword);
-        page.passwordFormClickNext();
+        try {
+            logger.info("Initiating sign-in process.");
+            page.signIn();
+
+            logger.info("Filling login name.");
+            page.fillLoginName(user.getUserName());
+            String actual = page.getLoginNameValue();
+            assertEquals(user.getUserName(), actual);
+            logger.debug("Login name entered correctly: {}", actual);
+
+            page.nameFormClickNext();
+            logger.info("Proceeding to the next step after entering login name.");
+
+            logger.info("Filling password.");
+            page.fillPassword(user.getPassword());
+            String actualPassword = page.getPasswordValue();
+            assertEquals(user.getPassword(), actualPassword);
+            logger.debug("Password entered correctly: {}", actualPassword);
+
+            page.passwordFormClickNext();
+            logger.info("Proceeding after password entry.");
+        } catch (Exception e) {
+            logger.error("Error during the sign-in process.", e);
+            throw e;
+        }
+
+        logger.info("Sign-in test completed successfully.");
     }
 }

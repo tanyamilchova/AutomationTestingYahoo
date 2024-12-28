@@ -3,6 +3,8 @@ package yahooTests;
 import com.example.MailPage;
 
 import com.example.model.User;
+import com.example.service.TestDataReader;
+import com.example.service.URLCreator;
 import com.example.service.UserCreator;
 
 
@@ -26,6 +28,7 @@ public class MailPageTest extends AbstractPageTest {
     MailPage page;
     User user;
     private  final Logger logger = LogManager.getLogger(MailPageTest.class);
+
     /**
      * Sets up the test environment before each test method.
      * <p>
@@ -35,19 +38,22 @@ public class MailPageTest extends AbstractPageTest {
      */
     @BeforeMethod
     public void setup() {
-//        super.setup();
-//        driver.get("https://mail.yahoo.com/d/folders/1");
-//        page = new MailPage(driver);
-//        user = UserCreator.withValidPasswordAndEmailFromProperty();
-//        page.login(user.getEmail(), user.getPassword());
-        logger.info("Setting up test environment...");
-        super.setup();
-        driver.get("https://mail.yahoo.com/d/folders/1");
-        page = new MailPage(driver);
-        user = UserCreator.withValidPasswordAndEmailFromProperty();
-        page.login(user.getEmail(), user.getPassword());
-        logger.info("Logged in with email: " + user.getEmail());
+        try {
+            logger.info("Setting up test environment...");
+            super.setup();
+            driver.get(URLCreator.getMailURLFromProperty());
+            page = new MailPage(driver);
+
+            user = UserCreator.withValidEmailAndPasswordFromEnvironment();
+
+            page.login(user.getEmail(), user.getPassword());
+            logger.info("Logged in with email: " + user.getEmail());
+        } catch (Exception e) {
+            logger.error("Error occured during setup: {}", e.getMessage(),e);
+            throw e;
+        }
     }
+
     /**
      * Tests the creation of a new email.
      * <p>
@@ -57,14 +63,6 @@ public class MailPageTest extends AbstractPageTest {
      */
     @Test
     public void createNewEmail(){
-//        User user = UserCreator.withEmailAttributes();
-//        int sentLetters = page.getNumberOfSentLetters();
-//        page.createEmail(user.getSendToEmail(), user.getEmailSubject(), user.getEmailText());
-//
-//        page.refreshLetterBox();
-//
-//        int currentSentLetters = page.getNumberOfSentLetters();
-//        assertEquals((sentLetters + 1), currentSentLetters);
         logger.info("Testing creation of new email...");
         User user = UserCreator.withEmailAttributes();
         int sentLetters = page.getNumberOfSentLetters();
@@ -86,13 +84,6 @@ public class MailPageTest extends AbstractPageTest {
      */
     @Test
     public void createNewDraft(){
-//        User user = UserCreator.withEmailAttributes();
-//        int numberDrafts = page.getNumberOfDrafts();
-//        page.createDraft(user.getSendToEmail(), user.getEmailSubject(), user.getEmailText());
-//
-//        page.refreshDraftCheckboxBox();
-//        int currentNumberOfDrafts = page.getNumberOfDrafts();
-//        assertEquals((numberDrafts + 1), currentNumberOfDrafts);
         logger.info("Testing creation of new draft...");
         User user = UserCreator.withEmailAttributes();
         int numberDrafts = page.getNumberOfDrafts();
@@ -115,24 +106,6 @@ public class MailPageTest extends AbstractPageTest {
      */
     @Test
     public void sendADraft(){
-//        User user = UserCreator.withEmailAttributes();
-//        int numberDrafts = page.getNumberOfDrafts();
-//        page.openDraftToSend();
-//
-//        String emailValue = page.getEmailValue();
-//        String subjectValue = page.getSubjectValue();
-//        String textValue = page.getTextValue();
-//
-//        assertEquals(user.getSendToEmail(), emailValue);
-//        assertEquals(user.getEmailSubject(), subjectValue);
-//        assertEquals(user.getEmailText(), textValue);
-//
-//        page.sendLatestDraft();
-//        page.refreshDraftBox();
-//
-//        int currentNumberOfDrafts = page.getNumberOfDrafts();
-//        assertEquals((numberDrafts - 1), currentNumberOfDrafts);
-//    }
         logger.info("Testing sending of a draft email...");
         User user = UserCreator.withEmailAttributes();
         int numberDrafts = page.getNumberOfDrafts();
@@ -165,12 +138,6 @@ public class MailPageTest extends AbstractPageTest {
      */
     @Test
     public void logOut(){
-//        final String EXPECTED_URL = "https://www.yahoo.com/";
-//        page.exitAccount();
-//
-//        String actual_URL = driver.getCurrentUrl();
-//        assertEquals(EXPECTED_URL, actual_URL);
-//    }
         logger.info("Testing logout...");
         final String EXPECTED_URL = "https://www.yahoo.com/";
         page.exitAccount();

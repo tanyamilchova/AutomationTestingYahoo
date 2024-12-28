@@ -3,7 +3,10 @@ package yahooTests;
 import com.example.PersonalInfoPage;
 
 import com.example.model.User;
+import com.example.service.URLCreator;
 import com.example.service.UserCreator;
+import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
 import org.testng.annotations.BeforeMethod;
 import org.testng.annotations.Test;
 import static org.testng.AssertJUnit.assertEquals;
@@ -14,7 +17,9 @@ import static org.testng.AssertJUnit.assertEquals;
  */
 public class PersonalInfoPageTest extends AbstractPageTest {
 
+    private static final Logger logger = LogManager.getLogger(PersonalInfoPageTest.class);
     PersonalInfoPage page ;
+    User user;
 
     /**
      * Sets up the test environment before each test method is run.
@@ -23,8 +28,15 @@ public class PersonalInfoPageTest extends AbstractPageTest {
     @BeforeMethod
     public void setup(){
         super.setup();
-        driver.get("https://login.yahoo.com/myaccount/overview/?src=ym&.done=https%3A%2F%2Fmail.yahoo.com%2F&pspid=159608517&activity=ybar-acctinfo&.scrumb=2ePeeNL%2FjRy");
+        logger.info("Navigating to Yahoo login page.");
+        driver.get(URLCreator.getAccountURLFromProperty());
         page = new PersonalInfoPage(driver);
+
+        user = UserCreator.withValidEmailAndPasswordFromEnvironment();
+        page.login(user.getEmail(), user.getPassword());
+        logger.info("Logged in with email: " + user.getEmail());
+
+        logger.debug("PersonalInfoPage object initialized.");
     }
 
     /**
@@ -33,20 +45,29 @@ public class PersonalInfoPageTest extends AbstractPageTest {
      */
     @Test
     public void assertAccountDetails(){
+        logger.info("Test started for asserting account details.");
         User user = UserCreator.withCredentialFromProperty();
-
-        page.login(user.getEmail(), user.getPassword());
         page.accessAccountInformation();
 
+        logger.info("Accessing account information...");
         String actualEmail = page.getEmailInfo();
         String actualName = page.getNameInfo();
         String actualSecondName = page.getSecondNameInfo();
         String actualDateOfBirth = page.getDateOfBirthInfo();
 
-        assertEquals(user.getFirstName(), actualName);
-        assertEquals(user.getSecondName(), actualSecondName);
-        assertEquals(user.getEmail(), actualEmail);
-        assertEquals(user.getDateOfBirth(), actualDateOfBirth);
+        logger.debug("Fetched account info - Email: {}, Name: {}, Second Name: {}, DOB: {}",
+                actualEmail, actualName, actualSecondName, actualDateOfBirth);
+
+        try {
+            assertEquals(user.getFirstName(), actualName);
+            assertEquals(user.getSecondName(), actualSecondName);
+            assertEquals(user.getEmail(), actualEmail);
+            assertEquals(user.getDateOfBirth(), actualDateOfBirth);
+            logger.info("Test passed, account details match the expected values.");
+        } catch (AssertionError e) {
+            logger.error("Test failed: Account details did not match the expected values.", e);
+            throw e;
+        }
     }
 }
 
