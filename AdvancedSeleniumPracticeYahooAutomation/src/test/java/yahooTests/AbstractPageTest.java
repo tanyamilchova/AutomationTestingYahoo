@@ -1,8 +1,14 @@
 package yahooTests;
 
+import com.example.AbstractPage;
+import com.example.HomePage;
 import com.example.driver.WebDriverSingleton;
+import com.example.model.User;
+import com.example.service.UserCreator;
 import com.example.util.TestListener;
 import io.github.bonigarcia.wdm.WebDriverManager;
+import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
 import org.openqa.selenium.WebDriver;
 import org.testng.annotations.AfterMethod;
 import org.testng.annotations.BeforeMethod;
@@ -18,7 +24,9 @@ import org.testng.annotations.Listeners;
 @Listeners({TestListener.class})
 public class AbstractPageTest {
     WebDriver driver;
-
+    User user;
+    AbstractPage page;
+    private  final Logger logger = LogManager.getLogger(AbstractPageTest.class);
 
     /**
      * Sets up the WebDriver instance before each test method.

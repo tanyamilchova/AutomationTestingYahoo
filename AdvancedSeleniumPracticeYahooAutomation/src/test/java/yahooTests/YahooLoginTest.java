@@ -45,6 +45,7 @@ public class YahooLoginTest extends AbstractPageTest{
         logger.info("Starting sign-in test.");
 
         User user = UserCreator.withValidUsernameAndPasswordFromEnvironment();
+//        user = UserCreator.withValidEmailAndPasswordFromEnvironment();
         logger.debug("User credentials retrieved: Username = {}, Password = [PROTECTED]", user.getUserName());
 
         try {

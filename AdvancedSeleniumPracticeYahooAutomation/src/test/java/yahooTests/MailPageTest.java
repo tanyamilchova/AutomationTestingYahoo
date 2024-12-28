@@ -3,7 +3,6 @@ package yahooTests;
 import com.example.MailPage;
 
 import com.example.model.User;
-import com.example.service.TestDataReader;
 import com.example.service.URLCreator;
 import com.example.service.UserCreator;
 
@@ -45,7 +44,6 @@ public class MailPageTest extends AbstractPageTest {
             page = new MailPage(driver);
 
             user = UserCreator.withValidEmailAndPasswordFromEnvironment();
-
             page.login(user.getEmail(), user.getPassword());
             logger.info("Logged in with email: " + user.getEmail());
         } catch (Exception e) {
