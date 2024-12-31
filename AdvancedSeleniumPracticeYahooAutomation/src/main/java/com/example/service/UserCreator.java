@@ -6,6 +6,10 @@ public  class UserCreator extends AbstractCreator{
     public static final String USERNAME = "USERNAME";
     public static final String PASSWORD = "PASSWORD";
 
+    public static final String WRONG_USERNAME = "WRONG_USERNAME";
+    public static final String WRONG_PASSWORD = "WRONG_PASSWORD";
+    public static final String WRONG_EMAIL = "WRONG_EMAIL";
+
     public static final String EMAIL= "user.email";
     public static final String FIRST_NAME="user.first_name";
     public static final String SECOND_NAME="user.second_name";
@@ -76,10 +80,17 @@ public static User withValidUsernameAndPasswordFromEnvironment(){
         }
     }
 
-    public static User withEmptyCredential(){
+    public static User withEmptyCredentials(){
         return new User.Builder()
                 .withUserName("")
                 .withPassword("")
+                .build();
+    }
+    public static User withWrongCredentials(){
+        return new User.Builder()
+                .withUserName(WRONG_USERNAME)
+                .withPassword(WRONG_PASSWORD)
+                .withEmail(WRONG_EMAIL)
                 .build();
     }
     public static User withEmailAttributes(){

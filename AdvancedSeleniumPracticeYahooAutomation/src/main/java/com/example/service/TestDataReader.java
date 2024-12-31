@@ -9,7 +9,6 @@ public class TestDataReader {
     public static ResourceBundle resourceBundle=ResourceBundle.getBundle(System.getProperty("environment"));
     public static String getTestData(String key){
         if(key != null){
-            System.out.println("Key: ..............."+key);
             String envValue = System.getenv(key);
             if (envValue != null && !envValue.trim().isEmpty()) {
                 return envValue;

@@ -13,6 +13,8 @@ import java.time.format.DateTimeFormatter;
 import java.time.format.DateTimeParseException;
 import java.util.Locale;
 
+
+
 public class PersonalInfoPage extends AbstractPage{
     private final Logger logger = LoggerFactory.getLogger(PersonalInfoPage.class);
     public PersonalInfoPage(WebDriver driver) {
@@ -31,7 +33,15 @@ public class PersonalInfoPage extends AbstractPage{
     WebElement dateOfBirthInfoContainer;
     @FindBy(how = How.CSS, using = ".dob-img")
     WebElement dobImage;
-
+    @FindBy(how = How.XPATH, using = "//a[text()='Актуализиране на личните данни']")
+    WebElement changePersonalData;
+    @FindBy(how = How.XPATH, using = "//input[@id='txtLastName']")
+    WebElement lastNameContainer;
+    @FindBy(how = How.XPATH, using = "//button[@id='btnSave']")
+    WebElement savePersonalData;
+    @FindBy(how = How.XPATH, using = "//span[text()='Фамилно име']/following-sibling::span")
+    WebElement correctedSecondName;
+    public static final String NEW_SECOND_NAME = "user.new_second_name";
 
     public void accessAccountInformation(){
         personalInfo.click();
@@ -76,6 +86,17 @@ public class PersonalInfoPage extends AbstractPage{
         }
     }
 
+    /**
+     * Retrieves and formats the user's Date of Birth information.
+     * This method performs the following actions:
+     * - Waits for the Date of Birth image element to be visible and clicks it.
+     * - Extracts the displayed date from the Date of Birth info container.
+     * - Parses the date from its original format (e.g., "d MMMM yyyy г.") using the Bulgarian locale.
+     * - Formats the parsed date into the desired output format (e.g., "dd.MM.yyyy").
+     * If any issues are encountered during the process (e.g., element not found, parsing error), the method logs the error and returns `null`.
+     *
+     * @return the formatted Date of Birth in the format "dd.MM.yyyy", or `null` if an error occurs.
+     */
 
     public String getDateOfBirthInfo() {
         try {
@@ -105,5 +126,40 @@ public class PersonalInfoPage extends AbstractPage{
             logger.error("Unexpected error occurred while fetching Date of Birth info: {}", e.getMessage());
             return null;
         }
+    }
+
+    /**
+     * Changes the user's second (last) name by interacting with the relevant UI elements.
+     * This method performs the following actions:
+     * - Waits for the "Change Personal Data" button to be clickable and clicks it.
+     * - Clears the current second name (last name) field and enters a new last name ("New LastName").
+     * - Clicks the "Save Personal Data" button to save the changes.
+     * If any issues are encountered during the process (e.g., elements not found, unexpected errors), the method logs the error.
+     *
+     * @throws NoSuchElementException if any of the expected elements are not found in the DOM.
+     */
+    public void changeSecondName() {
+        try {
+            waitForElementToBeClickable(changePersonalData);
+            changePersonalData.click();
+
+            lastNameContainer.clear();
+            lastNameContainer.sendKeys("New LastName");
+
+            savePersonalData.click();
+        } catch (NoSuchElementException e) {
+            logger.error("Second name info element not found: {}", e.getMessage());
+        } catch (Exception e) {
+            logger.error("Unexpected error occurred while retrieving second name info: {}", e.getMessage());
+        }
+    }
+
+    public String getLastName() {
+        waitForElementToBeVisible(correctedSecondName);
+        return correctedSecondName.getText();
+    }
+
+    public String getNewSecondName() {
+        return NEW_SECOND_NAME;
     }
 }

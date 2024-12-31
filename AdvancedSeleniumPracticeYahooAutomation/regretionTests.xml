@@ -2,7 +2,7 @@
 <suite name="RegressionTestSuite" parallel="false">
     <test name="RegressionTests">
         <classes>
-            <class name="yahooTests.MailPageTest">
+            <class name="yahooTests.mailPageTests.MailPageTest">
                 <methods>
                     <include name="createNewEmail" />
                     <include name="createNewDraft" />

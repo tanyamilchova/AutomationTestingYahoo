@@ -1,5 +1,7 @@
 package com.example;
 
+import com.example.model.User;
+import com.example.service.UserCreator;
 import org.openqa.selenium.TimeoutException;
 import org.openqa.selenium.WebDriver;
 import org.openqa.selenium.WebElement;
@@ -10,7 +12,6 @@ import org.openqa.selenium.support.ui.ExpectedConditions;
 import org.openqa.selenium.support.ui.WebDriverWait;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-
 import java.time.Duration;
 
 public  class AbstractPage {
@@ -25,6 +26,8 @@ public  class AbstractPage {
         PageFactory.initElements(driver, this);
     }
 
+    @FindBy(how = How.XPATH, using = "//body")
+    WebElement body;
     @FindBy(how = How.ID, using = "login-username")
     WebElement userName;
     @FindBy(how = How.ID, using =  "login-signin")
@@ -33,7 +36,6 @@ public  class AbstractPage {
     WebElement loginPasswd;
     @FindBy(how = How.XPATH, using = "//button[@name='verifyPassword']")
     WebElement verifyPassword;
-
 
 
     public void fillLoginName(String username){
@@ -95,7 +97,13 @@ public  class AbstractPage {
             return null;
         }
     }
-    public AbstractPage login(String name, String password){
+    public  void loginUser(){
+        User user = UserCreator.withValidEmailAndPasswordFromEnvironment();
+        login(user.getEmail(), user.getPassword());
+        logger.info("Logged in with email: " + user.getEmail());
+    }
+
+    public boolean login(String name, String password){
         try {
             fillLoginName(name);
             loginButton.click();
@@ -104,11 +112,11 @@ public  class AbstractPage {
             fillPassword(password);
             verifyPassword.click();
             logger.info("Login process completed successfully.");
+            return true;
         } catch (Exception e) {
             logger.error("Error during login: {}", e.getMessage(), e);
             throw e;
         }
-        return this;
     }
 
     protected WebElement waitForElementToBeVisible(WebElement element) {

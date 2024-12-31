@@ -1,12 +1,16 @@
 package yahooTests;
 
+import com.example.HighlighterEventListener;
 import com.example.driver.WebDriverSingleton;
 import com.example.util.TestListener;
 import io.github.bonigarcia.wdm.WebDriverManager;
 import org.openqa.selenium.WebDriver;
+import org.openqa.selenium.support.events.EventFiringDecorator;
+import org.openqa.selenium.support.events.WebDriverListener;
 import org.testng.annotations.AfterMethod;
 import org.testng.annotations.BeforeMethod;
 import org.testng.annotations.Listeners;
+
 /**
  * yahooTests.AbstractPageTest serves as a base test class providing common setup and teardown
  * functionalities for web page tests. It initializes WebDriver and loads user
@@ -17,7 +21,7 @@ import org.testng.annotations.Listeners;
  */
 @Listeners({TestListener.class})
 public class AbstractPageTest {
-    WebDriver driver;
+   public WebDriver driver;
 
 
     /**
@@ -28,7 +32,11 @@ public class AbstractPageTest {
     @BeforeMethod
     public void setup() {
         WebDriverManager.chromedriver().setup();
-        driver = WebDriverSingleton.getDriver();
+        WebDriver baseDriver = WebDriverSingleton.getDriver();
+
+        WebDriverListener highlightingListener = new HighlighterEventListener(baseDriver);
+        driver = new EventFiringDecorator(highlightingListener).decorate(baseDriver);
+
     }
 
     /**

@@ -47,20 +47,62 @@ public class MailPage extends AbstractPage{
     WebElement accountMenuOpener;
     @FindBy(how = How.XPATH, using = "//span[text()='Излизане']")
     WebElement exitButton;
-    @FindBy(how = How.XPATH, using = "//body")
-    WebElement body;
     @FindBy(how = How.XPATH, using = "//div[@data-test-id='virtual-list']/ul")
     WebElement draftContainer;
     @FindBy(how = How.XPATH, using = "//button[@data-test-id='checkbox']")
     WebElement allDraftsCheckbox;
     @FindBy(how = How.XPATH, using = "//div[@id='announcedSelectionCount']/span")
     WebElement numberOfDrafts;
+    @FindBy(how = How.XPATH, using = "//div[text()='Искате ли да изпратите съобщението без тема?']")
+    WebElement letterWithoutTheme;
 
 
     public MailPage(WebDriver driver) {
         super(driver);
     }
 
+    /**
+     * Populates the fields required to send an email: "To", "Subject", and "Body".
+     * This method performs the following actions:
+     * 1. Waits for the "To" field to be visible, then clicks and types the recipient's email address.
+     * 2. Clicks on the body of the email to move focus away from the "To" field.
+     * 3. Waits for the "Subject" field to be visible, then clicks and types the subject of the email.
+     * 4. Waits for the email body field to be visible, then clicks and types the message text.
+     *
+     * @param sendToField the email address of the recipient to be entered in the "To" field.
+     * @param subject the subject of the email to be entered in the "Subject" field.
+     * @param text the body of the email to be entered in the "Text" field.
+     */
+    public void populateEmailFields(String sendToField, String subject, String text) {
+        waitForElementToBeVisible(messageToField);
+        messageToField.click();
+        messageToField.sendKeys(sendToField);
+        body.click();
+
+        waitForElementToBeVisible(subgectField);
+        subgectField.click();
+        subgectField.sendKeys(subject);
+
+        waitForElementToBeVisible(textField);
+        textField.click();
+        textField.sendKeys(text);
+    }
+
+    /**
+     * Creates and sends an email by populating the "To", "Subject", and "Body" fields and clicking the necessary buttons.
+     * This method automates the process of composing and sending an email.
+     * The following actions are performed:
+     * 1. Waits for the "Create" button to be clickable, then clicks on it to open the email creation form.
+     * 2. Populates the email fields (recipient, subject, and body) by calling the {@link #populateEmailFields(String, String, String)} method.
+     * 3. Waits for the "Send" button to be visible, then clicks on it to send the email.
+     * 4. Refreshes the sent box after the email is sent to confirm the action was completed.
+     *
+     * @param sendToField the email address of the recipient to be entered in the "To" field.
+     * @param subject the subject of the email to be entered in the "Subject" field.
+     * @param text the body of the email to be entered in the "Text" field.
+     *
+     * @throws RuntimeException if an error occurs during the email creation or sending process.
+     */
     public void createEmail(String sendToField, String subject, String text) {
         logger.debug("Entering createEmail() with parameters sendToField: {}, subject: {}, text: {}", sendToField, subject, text);
        try {
@@ -68,37 +110,34 @@ public class MailPage extends AbstractPage{
         createButton.click();
         logger.debug("Clicked on the 'Create' button.");
 
-        waitForElementToBeVisible(messageToField);
-        messageToField.click();
-        messageToField.sendKeys(sendToField);
-        logger.debug("Entered recipient email: {}", sendToField);
-
-        body.click();
-
-        waitForElementToBeVisible(subgectField);
-        subgectField.click();
-        subgectField.sendKeys(subject);
-        logger.debug("Entered subject: {}", subject);
-
-        waitForElementToBeVisible(textField);
-        textField.click();
-        textField.sendKeys(text);
-        logger.debug("Entered email body text.");
+        populateEmailFields(sendToField, subject, text);
 
         waitForElementToBeVisible(sendButton);
         sendButton.click();
         logger.debug("Clicked on the 'Send' button.");
-
-        refreshLetterBox();
+        refreshBox(sent);
     } catch (Exception e) {
         logger.error("An error occurred while creating the email: {}", e.getMessage());
         throw new RuntimeException("Failed to create email", e);
     }
 }
 
+    /**
+     * Retrieves the number of sent letters by interacting with the sent box UI.
+     * This method automates the process of checking the number of sent letters by performing the following actions:
+     * - Refreshes the sent box.
+     * - Clicks on the sent menu to open the list of sent letters.
+     * - Waits for the "Select All" button for sent letters to be visible and clicks it.
+     * - Waits for the element displaying the number of sent letters to be visible and retrieves its text.
+     * - Parses the number of sent letters from the element text and returns the value.
+     *
+     * @return the number of sent letters as an integer.
+     *
+     * @throws RuntimeException if an error occurs while interacting with the sent box or retrieving the number of sent letters.
+     */
     public int getNumberOfSentLetters(){
         try {
-            refreshLetterBox();
+            refreshBox(sent);
             sentMenu.click();
 
             waitForElementToBeVisible(selectAllSentLetters);
@@ -112,32 +151,33 @@ public class MailPage extends AbstractPage{
         }
     }
 
+    /**
+     * Creates a draft email by populating the "To", "Subject", and "Body" fields and clicking the necessary buttons.
+     * This method automates the process of composing an email, saving it as a draft, and refreshing the draft box.
+     * The method performs the following actions:
+     * 1. Waits for the "Create" button to be clickable, then clicks on it to open the email creation form.
+     * 2. Populates the email fields (recipient, subject, and text) by calling the {@link #populateEmailFields(String, String, String)} method.
+     * 3. Waits for the "Close and Make a Draft" button to be visible, then clicks on it to save the email as a draft.
+     * 4. Refreshes the draft box to confirm the action was completed.
+     *
+     * @param sendToField the email address of the recipient to be entered in the "To" field.
+     * @param subject the subject of the email to be entered in the "Subject" field.
+     * @param text the body of the email to be entered in the "Text" field.
+     *
+     * @throws RuntimeException if an error occurs during the draft creation process.
+     */
     public void createDraft(String sendToField, String subject, String text) {
      try{
         waitForElementToBeClickable(createButton);
         createButton.click();
 
-        waitForElementToBeVisible(messageToField);
-        messageToField.click();
-        messageToField.sendKeys(sendToField);
-        logger.debug("Created recipient email: {}", sendToField);
-        body.click();
-
-        waitForElementToBeVisible(subgectField);
-        subgectField.click();
-        subgectField.sendKeys(subject);
-        logger.debug("Created subject: {}", subject);
-
-        waitForElementToBeVisible(textField);
-        textField.click();
-        textField.sendKeys(text);
-        logger.debug("Created body text for draft.");
+        populateEmailFields(sendToField, subject, text);
 
         waitForElementToBeVisible(closeAndMakeADraft);
         closeAndMakeADraft.click();
         logger.debug("Clicked on 'Close and Make a Draft' button.");
 
-        refreshDraftBox();
+         refreshBox(draftBox);
          logger.debug("Draft email created successfully and draft box refreshed.");
      } catch (Exception e) {
             logger.error("An error occurred while creating the draft email: {}", e.getMessage());
@@ -145,6 +185,15 @@ public class MailPage extends AbstractPage{
         }
     }
 
+    /**
+     * Refreshes the specified email box by clicking on the provided {@link WebElement} representing the box.
+     * This method waits for the box element to become clickable and then performs the click operation to refresh the box.
+     * If the box is not clickable within the specified timeout, an error is logged, and a {@link RuntimeException} is thrown.
+     *
+     * @param boxElement the {@link WebElement} representing the email box to be refreshed (e.g., draft box, sent box).
+     *
+     * @throws RuntimeException if the element is not clickable within the timeout or if an unexpected error occurs during the refresh process.
+     */
     public void refreshBox(WebElement boxElement){
         try {
             waitForElementToBeClickable(boxElement);
@@ -158,12 +207,11 @@ public class MailPage extends AbstractPage{
         }
     }
 
-    public void refreshDraftBox(){
-        refreshBox(draftBox);
+    public WebElement getSentFolderElement(){
+        return sent;
     }
-
-    public void refreshLetterBox(){
-        refreshBox(sent);
+    public WebElement getDraftBoxElement(){
+        return draftBox;
     }
 
     public void refreshDraftCheckboxBox(){
@@ -173,9 +221,22 @@ public class MailPage extends AbstractPage{
         logger.debug("Draft checkbox refreshed.");
     }
 
+    /**
+     * Retrieves the number of draft emails by checking the "All Drafts" checkbox and parsing the draft count from the UI.
+     * This method performs the following actions:
+     * <ul>
+     *     <li>Refreshes the draft box by clicking on the provided draft box element.</li>
+     *     <li>Checks the state of the "All Drafts" checkbox to ensure it is selected, and clicks it if not.</li>
+     *     <li>Waits for the draft count to become visible and retrieves the number of drafts displayed.</li>
+     * </ul>
+     *
+     * <p>If any issues are encountered during the process (e.g., element not found or parsing error), the method logs the error and returns 0.</p>
+     *
+     * @return the number of drafts as an integer, or 0 if an error occurs.
+     */
     public int getNumberOfDrafts(){
         try {
-            refreshDraftBox();
+            refreshBox(draftBox);
             logger.debug("Draft box refreshed.");
             waitForElementToBeClickable(allDraftsCheckbox);
             String areaChecked = allDraftsCheckbox.getAttribute("aria-checked");
@@ -201,6 +262,16 @@ public class MailPage extends AbstractPage{
         }
     }
 
+    /**
+     * Opens a draft email for sending by selecting the second draft from the draft list.
+     * This method performs the following actions:
+     * - Clicks the draft box to reveal the list of drafts.
+     * - Waits for the draft container to be visible.
+     * - Checks if there are any drafts available in the list.
+     * - If drafts are available, it opens the second draft by clicking on it.
+     * - If no drafts are found, logs a message indicating no drafts are available to open.
+     * If any issues are encountered during the process (e.g., element not found or interaction issue), the method logs the error.
+     */
     public void openDraftToSend() {
         try {
             draftBox.click();
@@ -224,11 +295,19 @@ public class MailPage extends AbstractPage{
         }
     }
 
+    /**
+     * Sends the latest draft email by interacting with the "Send Draft" button.
+     * This method performs the following actions:
+     * - Waits for the "Send Draft" button to be visible.
+     * - Clicks the "Send Draft" button to send the latest draft.
+     * - Refreshes the draft box to reflect the updated status after sending the draft.
+     * If any issues are encountered during the process (e.g., element not found, button not interactable, or any other error), the method logs the error.
+     */
     public void sendLatestDraft(){
         try {
             waitForElementToBeVisible(sendADraft);
             sendADraft.click();
-            refreshDraftBox();
+            refreshBox(draftBox);
         } catch (NoSuchElementException e) {
             logger.error("Send Draft button not found: {}", e.getMessage());
         } catch (ElementNotInteractableException e) {
@@ -288,5 +367,13 @@ public class MailPage extends AbstractPage{
         } catch (Exception e) {
             logger.error("Unexpected error occurred while logging out: {}", e.getMessage());
         }
+    }
+    public String sendALetterWithoutTheme(){
+        waitForElementToBeVisible(letterWithoutTheme);
+        return letterWithoutTheme.getText();
+    }
+
+    public String getExpectedThemeWarning() {
+        return "warning.expectedThemeWarning";
     }
 }

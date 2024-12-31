@@ -1,4 +1,4 @@
-package yahooTests;
+package yahooTests.mailPageTests;
 
 import com.example.MailPage;
 import com.example.model.User;
@@ -9,6 +9,8 @@ import org.apache.logging.log4j.Logger;
 import org.openqa.selenium.NoSuchElementException;
 import org.testng.annotations.BeforeMethod;
 import org.testng.annotations.Test;
+import yahooTests.AbstractPageTest;
+
 import static org.testng.AssertJUnit.assertEquals;
 
 /**
@@ -23,7 +25,6 @@ import static org.testng.AssertJUnit.assertEquals;
  */
 public class MailPageTest extends AbstractPageTest {
     MailPage page;
-    User user;
     private  final Logger logger = LogManager.getLogger(MailPageTest.class);
 
     /**
@@ -40,10 +41,7 @@ public class MailPageTest extends AbstractPageTest {
             super.setup();
             driver.get(URLCreator.getMailURLFromProperty());
             page = new MailPage(driver);
-
-            user = UserCreator.withValidEmailAndPasswordFromEnvironment();
-            page.login(user.getEmail(), user.getPassword());
-            logger.info("Logged in with email: " + user.getEmail());
+            page.loginUser();
         } catch (Exception e) {
             logger.error("Error occurred during setup: {}", e.getMessage(),e);
             throw e;
@@ -57,7 +55,6 @@ public class MailPageTest extends AbstractPageTest {
      * recipient, subject, and text content.
      * </p>
      */
-
     @Test
     public void createNewEmail() {
         try {
@@ -68,7 +65,7 @@ public class MailPageTest extends AbstractPageTest {
             page.createEmail(user.getSendToEmail(), user.getEmailSubject(), user.getEmailText());
             logger.debug("Email created with recipient: " + user.getSendToEmail() + ", subject: " + user.getEmailSubject());
 
-            page.refreshLetterBox();
+            page.refreshBox(page.getSentFolderElement());
             int currentSentLetters = page.getNumberOfSentLetters();
             assertEquals((sentLetters + 1), currentSentLetters);
 
@@ -149,7 +146,7 @@ public class MailPageTest extends AbstractPageTest {
             assertEquals(user.getEmailText(), textValue);
 
             page.sendLatestDraft();
-            page.refreshDraftBox();
+            page.refreshBox(page.getDraftBoxElement());
             int currentNumberOfDrafts = page.getNumberOfDrafts();
             assertEquals((numberDrafts - 1), currentNumberOfDrafts);
 
@@ -197,4 +194,27 @@ public class MailPageTest extends AbstractPageTest {
         }
     }
 
+    /**
+     * Test to verify that sending an email without a theme triggers the correct warning message.
+     * This test checks the behavior when the subject field is left empty.
+     */
+    @Test
+    public  void sendEmailWithoutTheme(){
+        try {
+            logger.info("Creating user with email attributes...");
+            User user = UserCreator.withEmailAttributes();
+            User userEmptyCredentials = UserCreator.withEmptyCredentials();
+
+            logger.info("Populating email fields...");
+            page.createEmail(user.getSendToEmail(), userEmptyCredentials.getEmailSubject(), user.getEmailText());
+
+            String actualMessageWarning = page.sendALetterWithoutTheme();
+            String expectedThemeWarning = page.getExpectedThemeWarning();
+            assertEquals(expectedThemeWarning, actualMessageWarning);
+
+            logger.info("Test completed successfully: Warning messages match.");
+        } catch (Exception e) {
+            logger.warn("An exception occurred during the test: {}", e.getMessage());
+        }
+    }
 }

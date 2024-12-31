@@ -9,29 +9,32 @@ public class URLCreator extends AbstractCreator{
 
     public static String getLoginURLFromProperty(){
         try{
-            String loginPageURL = validateProperty(TestDataReader.getTestData(LOGIN_PAGE_URL), "LOGIN_PAGE_URL");
-           return TestDataReader.getTestData(loginPageURL);
+            validateProperty(TestDataReader.getTestData(LOGIN_PAGE_URL), "LOGIN_PAGE_URL");
+           return TestDataReader.getTestData(LOGIN_PAGE_URL);
         }   catch (RuntimeException e) {
             throw new RuntimeException("Failed to get LOGIN_PAGE_URL from properties: " + e.getMessage(), e);
         }
 
     }
+
     public static String getAccountURLFromProperty(){
         try {
-            String accountPageURL = validateProperty(TestDataReader.getTestData(ACCOUNT_PAGE_URL), "ACCOUNT_PAGE_URL");
-            return  TestDataReader.getTestData(accountPageURL);
+            validateProperty(TestDataReader.getTestData(ACCOUNT_PAGE_URL), "ACCOUNT_PAGE_URL");
+            return  TestDataReader.getTestData(ACCOUNT_PAGE_URL);
         } catch (Exception e) {
             throw new RuntimeException("Failed to get ACCOUNT_PAGE_URL from properties: " + e.getMessage(), e);
         }
     }
+
     public static String getMailURLFromProperty(){
         try {
-            String mailPageURL = validateProperty(TestDataReader.getTestData(MAIL_PAGE_URL), "MAIL_PAGE_URL");
-            return  TestDataReader.getTestData(mailPageURL);
+            validateProperty(TestDataReader.getTestData(MAIL_PAGE_URL), "MAIL_PAGE_URL");
+            return  TestDataReader.getTestData(MAIL_PAGE_URL);
         } catch (Exception e) {
             throw new RuntimeException("Failed to get MAIL_PAGE_URL from properties: " + e.getMessage(), e);
         }
     }
+
     public static String getYahooURLFromProperty(){
         try {
             String mailPageURL = validateProperty(TestDataReader.getTestData(YAHOO_URL), "MAIL_PAGE_URL");
