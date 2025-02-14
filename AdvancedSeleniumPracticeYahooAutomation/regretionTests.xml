@@ -1,0 +1,14 @@
+<!DOCTYPE suite SYSTEM "https://testng.org/testng-1.0.dtd">
+<suite name="RegressionTestSuite" parallel="false">
+    <test name="RegressionTests">
+        <classes>
+            <class name="yahooTests.mailPageTests.MailPageTest">
+                <methods>
+                    <include name="createNewEmail" />
+                    <include name="createNewDraft" />
+                    <include name="sendADraft" />
+                </methods>
+            </class>
+        </classes>
+    </test>
+</suite>

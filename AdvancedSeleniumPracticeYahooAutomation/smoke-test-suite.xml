@@ -1,0 +1,26 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE suite SYSTEM "http://testng.org/testng-1.0.dtd">
+<suite name="yahooTests.mailPageTests.MailPageTest">
+    <test name="Run SmokeTests">
+        <classes>
+            <class name="yahooTests.loginTests.LoginTest">
+                <methods>
+                    <include name="signIn" />
+                </methods>
+            </class>
+            <class name="yahooTests.personalInfoPageTests.PersonalInfoPageTest">
+                <methods>
+                    <include name="assertAccountDetails" />
+                </methods>
+            </class>
+            <class name="yahooTests.mailPageTests.MailPageTest">
+                <methods>
+                    <include name="createNewEmail" />
+                    <include name="logOut" />
+                </methods>
+            </class>
+
+        </classes>
+    </test>
+
+</suite>
